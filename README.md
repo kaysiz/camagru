@@ -1,0 +1,2 @@
+# camagru
+This web project is to create a small web application allowing one to make basic photo and video editing using webcam and some predefined images. App’s users should be able to select an image in a list of superposable images (for instance a picture frame, or other objects), take a picture with his/her webcam and admire the result that should be mixing both pictures. All captured images should be public, likeable and commentable. 
