@@ -22,7 +22,7 @@
                     <li><a href="#gallery">Gallery</a></li>
                     <?php if (isset($_SESSION['loggedin'])): ?>
                     <li><a href="./includes/funcs.inc.php?logout=true">Logout</a></li>
-                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="dashboard.php">Dashboard</a></li>
                     <?php else: ?>
                     <li><a href="#login" onclick="document.getElementById('login').style.display='block'">Login</a></li>
                     <li><a href="#signup" onclick="document.getElementById('signup').style.display='block'">Register</a></li>

@@ -37,7 +37,7 @@
 
             if ($num > 0) {
                 if (password_verify($password, $hash)) {
-                    $_SESSION['name'] = $row['username'];
+                    $_SESSION['username'] = $row['username'];
                     $_SESSION['email'] = $row['email'];
                     $_SESSION['role'] = $row['role'];
                     $_SESSION['loggedin'] = true;
