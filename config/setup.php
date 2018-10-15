@@ -5,10 +5,11 @@
     //create tables for users
     $user = "CREATE TABLE IF NOT EXISTS users ("
     . "id int NOT NULL AUTO_INCREMENT,"
-    . "username varchar(100) UNIQUE,"
-    . "email varchar(100) UNIQUE,"
-    . "role varchar(100) DEFAULT 'general',"
-    . "password varchar(1000),"
+    . "username varchar(100) NOT NULL UNIQUE,"
+    . "email varchar(100) NOT NULL UNIQUE,"
+    . "role varchar(100) NOT NULL DEFAULT 'general',"
+    . "password varchar(1000) NOT NULL,"
+    . "token varchar(1000) NOT NULL,"
     . "isActive varchar(1000) NOT NULL DEFAULT 0,"
     . "dateCreated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
     . "PRIMARY KEY (id));";

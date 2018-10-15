@@ -71,6 +71,7 @@
     //signup function
     function signup($user, $conn)
     {
+        $token = md5(md5(time().$user[1].rand(0,9999)));
         //check if user exists
         try {
             $check = $conn->prepare('SELECT * FROM users WHERE email = "' . $user[1] . '" OR username = "' . $user[0] . '"');
@@ -89,19 +90,24 @@
             }   
         } else{
             try {
-                $signup = $conn->prepare('INSERT INTO users(username, email, password)VALUES
-                                    ("' . $user[0] . '","' . $user[1] . '","' . $user[2] . '")');
+                $signup = $conn->prepare('INSERT INTO users(username, email, password, token)VALUES
+                                    ("' . $user[0] . '","' . $user[1] . '","' . $user[2] . '","' . $token . '",)');
                 $signup->execute();
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
             }
 
             if ($signup) {
+                regmail($user[1], $token);
                 header('Location: ../index.php?register=true');
             }
             die();
         }
     }
+
+
+    // Activate account
+
 
     /*
     * Functions to get
@@ -155,6 +161,42 @@
         return $images;
     }
 
+
+    /*
+    * Emails
+    */
+
+    //registration email
+    function regmail($email, $token) {
+        $to = $email; // note the comma
+
+        // Subject
+        $subject = '<b>Activate</b> your Camagru account';
+
+        // Message
+        $message = '
+        <html>
+        <head>
+        <title><b>Activate</b> your Camagru account</title>
+        </head>
+        <body>
+        <p>activate account <a href="http://localhost:8080/camagru/activate.php?activate="'.$token.'" >Here</a></p>
+        </body>
+        </html>
+        ';
+
+        // To send HTML mail, the Content-type header must be set
+        $headers[] = 'MIME-Version: 1.0';
+        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+
+        // Additional headers
+        $headers[] = 'From: Camagru <jaggernaut@camagru.africa>';
+        // Mail it
+        if (mail($to, $subject, $message, implode("\r\n", $headers)))
+            return true;
+        else
+            return false;
+    }
 
     //logout
     function logout() {
