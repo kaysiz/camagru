@@ -312,13 +312,7 @@ span.psw {
 /* Dashboard */
 
 .sidebar {
-    margin: 0;
-    padding: 0;
-    width: 200px;
-    background-color: #f1f1f1;
-    position: fixed;
     height: 30%;
-    overflow: auto;
 }
 
 .sidebar a {
@@ -344,21 +338,59 @@ div.content {
     height: 1000px;
 }
 
-@media screen and (max-width: 700px) {
-    .sidebar {
+
+/* Create three unequal columns that floats next to each other */
+
+.column,
+.column2 {
+    float: left;
+    padding: 10px;
+    height: 300px;
+    /* Should be removed. Only for demonstration */
+}
+
+.left {
+    width: 15%;
+}
+
+.left2 {
+    width: 30%;
+}
+
+.right2 {
+    width: 50%;
+}
+
+.right {
+    width: 80%;
+    height: 820px;
+}
+
+
+/* Clear floats after the columns */
+
+.row:after,
+.row2:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+@media screen and (max-width: 600px) {
+    .column {
         width: 100%;
     }
-    .sidebar a {
-        float: left;
-    }
-    div.content {
-        margin-left: 0;
+    .column2 {
+        width: 100%;
     }
 }
 
-@media screen and (max-width: 400px) {
-    .sidebar a {
-        text-align: center;
-        float: none;
-    }
+.temp-img {
+    width: 300px;
+    height: 200px;
+    border: 1px solid #6ABC6D;
+}
+
+#photos {
+    display: flex;
 }

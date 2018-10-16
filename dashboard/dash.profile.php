@@ -9,7 +9,6 @@
         <?php elseif ($_GET['register']): ?>
         <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account created successfully! Follow instructions sent to your email to activate account.</p>
         <?php endif; ?>
-        <h1>Gallery</h1>
     </div>
     <form class="modal-content animate" action="./includes/funcs.inc.php" method="post" style="width:90% !important;">
         <div class="container">

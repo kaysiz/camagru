@@ -61,6 +61,8 @@
             $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT, array('cost' => 5));
             $user = array($username, $email, $password);
             signup($user, $conn);
+        }elseif (isset($_POST['img'])) {
+            file_put_contents('img.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $_POST['key'])));
         }
     }
 
@@ -202,4 +204,8 @@
     function logout() {
         if (session_destroy())
             header('Location: ../index.php');
+    }
+
+    function saveimg() {
+        return "Hey wassup";
     }

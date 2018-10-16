@@ -1,25 +1,33 @@
-<div class="top-container">
-    <video id="video">Stream unavailable</video>
-    <button id="photo-button">Take photo</button>
-    <select id="photo-filter">
-        <option value="none">Normal</option>
-        <option value="grayscale(100%)">Grayscale</option>
-        <option value="sepia(100%)">Sepia</option>
-        <option value="invert(100%)">Invert</option>
-        <option value="hue-rotate(90deg)">Hue</option>
-        <option value="blur(10px)">Blur</option>
-        <option value="contrast(200%)">Contrast</option>
-        <option value="drop-shadow(16px 16px 20px blue)">Drop Shadow</option>
-    </select>
-    <button id="clear-button">Clear</button>
-    <canvas id="canvas"></canvas>
+<div class="row2">
+    <div class="column2 left2">
+        <div class="top-container" style="width:50%;">
+        <video id="video">Stream unavailable</video>
+        <button id="photo-button">Take photo</button>
+        <select id="photo-filter">
+            <option value="none">Normal</option>
+            <option value="grayscale(100%)">Grayscale</option>
+            <option value="sepia(100%)">Sepia</option>
+            <option value="invert(100%)">Invert</option>
+            <option value="hue-rotate(90deg)">Hue</option>
+            <option value="blur(10px)">Blur</option>
+            <option value="contrast(200%)">Contrast</option>
+            <option value="drop-shadow(16px 16px 20px blue)">Drop Shadow</option>
+        </select>
+        <button id="clear-button">Clear</button>
+        <canvas id="canvas"></canvas>
+    </div>
+    </div>
+    <div class="column2 right2" style="background-color:#ccc;">
+        <div class="bottom-container">
+            <div id="photos"></div>
+        </div>
+    </div>
 </div>
-<div class="bottom-container">
-    <div id="photos"></div>
-</div>
+
+
 <script>
     //Global Variable
-    let width = 500;
+    let width = 380;
     let height = 0;
     let filter = 'none';
     let streaming = false;
@@ -85,10 +93,24 @@
             const imgUrl = canvas.toDataURL('image/png');
             const img = document.createElement('img');
             img.setAttribute('src', imgUrl);
-            img.setAttribute('class', "img");
+            img.setAttribute('class', "temp-img");
+            img.setAttribute('data-imgkey', imgUrl);
+            img.setAttribute('onclick',"myFunction(this)");
             img.style.filter = filter;
 
             photos.appendChild(img);
         }
+    }
+    function myFunction(d){
+        if (confirm("Press OK to save image, or cancel to delete it.")) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("img=true&key="+encodeURIComponent(d.getAttribute("data-imgkey")));
+        }else{
+            var parent = document.getElementById('photos');
+            parent.removeChild(d);
+        }
+        console.log(d.getAttribute("data-imgkey"));
     }
 </script>
