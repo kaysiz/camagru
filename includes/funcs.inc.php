@@ -36,6 +36,10 @@
             $hash = $row['password'];
 
             if ($num > 0) {
+                if ($row['isActive'] != 1){
+                    header("Refresh:0; ../index.php?inactive=true");
+                    exit();
+                }
                 if (password_verify($password, $hash)) {
                     $_SESSION['username'] = $row['username'];
                     $_SESSION['email'] = $row['email'];
@@ -93,7 +97,7 @@
         } else{
             try {
                 $signup = $conn->prepare('INSERT INTO users(username, email, password, token)VALUES
-                                    ("' . $user[0] . '","' . $user[1] . '","' . $user[2] . '","' . $token . '",)');
+                                    ("' . $user[0] . '","' . $user[1] . '","' . $user[2] . '","' . $token . '")');
                 $signup->execute();
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
@@ -109,7 +113,40 @@
 
 
     // Activate account
-
+    function activate($token, $conn) {
+        //check if token exists
+        try {
+            $check = $conn->prepare('SELECT * FROM users WHERE token = "' . $token. '"');
+            $check->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+        // check if user EXISTS
+        $num = $check->rowCount();
+        $statuscheck = $check -> fetch(PDO::FETCH_ASSOC);
+        if ($num > 0) {
+            if ($statuscheck['isActive'] == 1) {
+                header('Location: ../index.php?active=true');
+            } else{
+                try {
+                    $activate = $conn->prepare('UPDATE users SET isActive = 1');
+                    $activate->execute();
+                } catch (Exception $e) {
+                    echo 'Error: ' . $e->getMessage();
+                }
+    
+                if ($activate) {
+                    $_SESSION['username'] = $statuscheck['username'];
+                    $_SESSION['email'] = $statuscheck['email'];
+                    $_SESSION['role'] = $statuscheck['role'];
+                    $_SESSION['loggedin'] = true;
+                    session_write_close();
+                    header('Location: ../index.php?activated=true');
+                }
+                die();
+            } 
+        } 
+    }
 
     /*
     * Functions to get
@@ -163,30 +200,27 @@
         return $images;
     }
 
-
     /*
     * Emails
     */
-
     //registration email
     function regmail($email, $token) {
-        $to = $email; // note the comma
-
+        $to = $email;
+        
         // Subject
-        $subject = '<b>Activate</b> your Camagru account';
+        $subject = 'Activate your Camagru account';
 
         // Message
         $message = '
         <html>
         <head>
-        <title><b>Activate</b> your Camagru account</title>
+        <title>Activate your Camagru account</title>
         </head>
         <body>
-        <p>activate account <a href="http://localhost:8080/camagru/activate.php?activate="'.$token.'" >Here</a></p>
+        <p>To activate your Camagru account click <a href="http://localhost:8080/camagru/includes/activate.php?activate='. $token.'">here.</a></p>
         </body>
         </html>
         ';
-
         // To send HTML mail, the Content-type header must be set
         $headers[] = 'MIME-Version: 1.0';
         $headers[] = 'Content-type: text/html; charset=iso-8859-1';

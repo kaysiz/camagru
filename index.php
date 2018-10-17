@@ -11,6 +11,12 @@
             <p class="alert red"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>There was an error signing in!</p>
             <?php elseif ($_GET['register']): ?>
             <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account created successfully! Follow instructions sent to your email to activate account.</p>
+            <?php elseif ($_GET['active']): ?>
+            <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account is aleady activated!</p>
+            <?php elseif ($_GET['activated']): ?>
+            <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account successfully activated!</p>
+            <?php elseif ($_GET['inactive']): ?>
+            <p class="alert red"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account is not activated! Check your email for link</p>
             <?php endif; ?>
             <h1>Gallery</h1>
         </div>
