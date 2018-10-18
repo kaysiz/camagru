@@ -1,4 +1,9 @@
-<?php include "./includes/header.inc.php"; ?>
+<?php
+    if (!isset($_SESSION['loggedin'])) {
+      header('Location: index.php');  
+    }
+    include "./includes/header.inc.php"; 
+?>
     <br>
     <div class="container">
         <div class="row">
@@ -7,6 +12,7 @@
                     <a href="dashboard.php">Home</a>
                     <a href="dashboard.php?gallery=true">My Gallery</a>
                     <a href="dashboard.php?profile=true">Edit Profile</a>
+                    <a href="#">Delete Account</a>
                 </div>
             </div>
             <div class="column right" style="background-color:#ccc;">
