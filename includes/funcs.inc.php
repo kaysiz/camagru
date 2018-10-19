@@ -108,15 +108,14 @@
             }   
         } else{
             try {
-                $signup = $conn->prepare("INSERT INTO users(username, email, password, token)VALUES (':username', ':email', ':password', ':token')");
+                $signup = $conn->prepare("INSERT INTO users(username, email, `password`, token)VALUES (:username, :email, :pwd, :token)");
                 $signup->bindParam(':username', $user[0]);
                 $signup->bindParam(':email', $user[1]);
-                $signup->bindParam(':password', $user[2]);
+                $signup->bindParam(':pwd', $user[2]);
                 $signup->execute(':token', $token);
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
             }
-
             if ($signup) {
                 regmail($user[1], $token);
                 header('Location: ../index.php?register=true');
