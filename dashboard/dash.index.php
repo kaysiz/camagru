@@ -27,8 +27,8 @@
 
 <script>
     //Global Variable
-    let width = 380;
-    let height = 0;
+    let width = 400;
+    let height = 300;
     let filter = 'none';
     let streaming = false;
 
@@ -54,7 +54,7 @@
 
     video.addEventListener('canplay', (e) => {
         if (!streaming) {
-            height = video.videoHeight / (video.videoWidth / width);
+            // height = video.videoHeight / (video.videoWidth / width);
             video.setAttribute('width', width);
             video.setAttribute('height', height);
             canvas.setAttribute('width', width);

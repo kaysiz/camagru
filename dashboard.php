@@ -1,6 +1,7 @@
 <?php
+    session_start();
     if (!isset($_SESSION['loggedin'])) {
-      header('Location: index.php');  
+      header('Location: index.php?loggedin=false');  
     }
     include "./includes/header.inc.php"; 
 ?>
@@ -12,7 +13,7 @@
                     <a href="dashboard.php">Home</a>
                     <a href="dashboard.php?gallery=true">My Gallery</a>
                     <a href="dashboard.php?profile=true">Edit Profile</a>
-                    <a href="#">Delete Account</a>
+                    <a href="./includes/funcs.inc.php?delete=account&user=<?=$_SESSION['email'];?>" onclick="return confirm('Are you sure you want to delete your account?');">Delete Account</a>
                 </div>
             </div>
             <div class="column right" style="background-color:#ccc;">

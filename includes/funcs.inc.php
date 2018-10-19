@@ -5,6 +5,16 @@
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (isset($_GET['logout']))
             logout();
+        elseif (isset($_GET['delete'])) {
+            if ($_GET['delete'] == 'account') {
+                if ($_GET['user']) {
+                    if (deleteuser(trim($_GET['user']), $conn)) {
+                        session_destroy();
+                        header('Location: ../index.php?accountdelete=true');
+                    }
+                }
+            }
+        }
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,20 +23,20 @@
             $email = $_POST['password'];
             $role = $_POST['role'];
             adduser($name, $email, $role, $conn);
-        } elseif (isset($_POST['addproduct'])) {
-            $name = $_POST['name'];
-            $category = $_POST['category'];
-            $price = $_POST['price'];
-            $quantity = $_POST['quantity'];
-            $product = array($name, $category, $price, $quantity);
-            addproduct($product, $conn);
+        } elseif (isset($_POST['update'])) {
+            $username = $_POST['username'];
+            $email = $_POST['email'];
+            $password = $_POST['password'];
+            $user = array($username, $email, $password);
+            updateuser($user, $conn);
         } elseif (isset($_POST['editPlan'])) {
             
         } elseif (isset($_POST['login'])) {
             $username = $_POST['username'];
             $password = $_POST['password'];
             try {
-                $sel_user = $conn->prepare("SELECT * FROM users WHERE username='$username' LIMIT 1");
+                $sel_user = $conn->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
+                $sel_user->bindParam(':username', $username);
                 $sel_user->execute();
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
@@ -80,7 +90,9 @@
         $token = md5(md5(time().$user[1].rand(0,9999)));
         //check if user exists
         try {
-            $check = $conn->prepare('SELECT * FROM users WHERE email = "' . $user[1] . '" OR username = "' . $user[0] . '"');
+            $check = $conn->prepare('SELECT * FROM users WHERE email = :email OR username = :username');
+            $check->bindParam(':email', $user[1]);
+            $check->bindParam(':username', $user[0]);
             $check->execute();
         } catch (Exception $e) {
             echo 'Error: ' . $e->getMessage();
@@ -96,9 +108,11 @@
             }   
         } else{
             try {
-                $signup = $conn->prepare('INSERT INTO users(username, email, password, token)VALUES
-                                    ("' . $user[0] . '","' . $user[1] . '","' . $user[2] . '","' . $token . '")');
-                $signup->execute();
+                $signup = $conn->prepare("INSERT INTO users(username, email, password, token)VALUES (':username', ':email', ':password', ':token')");
+                $signup->bindParam(':username', $user[0]);
+                $signup->bindParam(':email', $user[1]);
+                $signup->bindParam(':password', $user[2]);
+                $signup->execute(':token', $token);
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
             }
@@ -116,7 +130,8 @@
     function activate($token, $conn) {
         //check if token exists
         try {
-            $check = $conn->prepare('SELECT * FROM users WHERE token = "' . $token. '"');
+            $check = $conn->prepare('SELECT * FROM users WHERE token = :token');
+            $check->bindParam(':token', $token);
             $check->execute();
         } catch (Exception $e) {
             echo 'Error: ' . $e->getMessage();
@@ -129,7 +144,9 @@
                 header('Location: ../index.php?active=true');
             } else{
                 try {
-                    $activate = $conn->prepare('UPDATE users SET isActive = 1');
+                    $activate = $conn->prepare('UPDATE users SET isActive = :isActive WHERE email = :email');
+                    $activate->bindParam(':isActive', 1);
+                    $activate->bindParam(':email', $statuscheck['email']);
                     $activate->execute();
                 } catch (Exception $e) {
                     echo 'Error: ' . $e->getMessage();
@@ -145,7 +162,9 @@
                 }
                 die();
             } 
-        } 
+        }else{
+            header('Location: ../index.php?notoken=true');
+        }
     }
 
     /*
@@ -162,6 +181,50 @@
         }
         $users =$access->fetchAll(PDO:: FETCH_ASSOC);
         return $users;
+    }
+    function deleteuser($email, $conn) {
+        try{
+            $access = $conn->prepare('DELETE FROM users WHERE email = :email');
+            $access->bindParam(':email', $email);
+            $access->execute();
+        }
+        catch(Exception $e){
+            echo 'Error: '.$e->getMessage();
+        }
+        if ($access) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    function updateuser($user, $conn){
+        try {
+            $check = $conn->prepare('SELECT * FROM users WHERE username = :username AND email != :email');
+            $check->bindParam(':username', $user[0]);
+            $check->bindParam(':email', $user[1]);
+            $check->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+        $num = $check->rowCount();
+        if ($num > 0) {
+            header('Location: ../dashboard.php?profile=true&usernameexists=true');
+        }else{
+            $password = password_hash(trim($user[2]), PASSWORD_BCRYPT, array('cost' => 5));
+            try {
+                $update = $conn->prepare('UPDATE users SET username = :username, email = :email, password = :password');
+                $update->bindParam(':username', $user[0]);
+                $update->bindParam(':email', $user[1]);
+                $update->bindParam(':password', $password);
+                $update->execute();
+            } catch (Exception $e) {
+                echo 'Error: ' . $e->getMessage();
+            }
+        }
+        if ($update) {
+            header('Location: ../dashboard.php?profile=true&update=true');
+        }
     }
 
     function getuser($username,$conn) {
