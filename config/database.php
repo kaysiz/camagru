@@ -1,8 +1,9 @@
 <?php
+    header("Access-Control-Allow-Origin: *");
 
     $DB_DSN = 'localhost';
     $DB_USER = 'root';
-    $DB_PASSWORD = 'rooting';
+    $DB_PASSWORD = 'root';
     $DB_NAME = 'camagru';
 
 

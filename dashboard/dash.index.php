@@ -1,26 +1,22 @@
-<div class="row2">
-    <div class="column2 left2">
-        <div class="top-container" style="width:50%;">
-        <video id="video">Stream unavailable</video>
-        <button id="photo-button">Take photo</button>
-        <select id="photo-filter">
-            <option value="none">Normal</option>
-            <option value="grayscale(100%)">Grayscale</option>
-            <option value="sepia(100%)">Sepia</option>
-            <option value="invert(100%)">Invert</option>
-            <option value="hue-rotate(90deg)">Hue</option>
-            <option value="blur(10px)">Blur</option>
-            <option value="contrast(200%)">Contrast</option>
-            <option value="drop-shadow(16px 16px 20px blue)">Drop Shadow</option>
-        </select>
-        <button id="clear-button">Clear</button>
-        <canvas id="canvas"></canvas>
-    </div>
-    </div>
-    <div class="column2 right2" style="background-color:#ccc;">
-        <div class="bottom-container">
-            <div id="photos"></div>
-        </div>
+<div class="column left">
+<div class="top-container" style="width:50%;position: relative;">
+    <video id="video">Stream not available...</video>
+    <img src="" alt="" id="overlay" style="position:absolute;bottom:194px; right:175px;width:400px;height:300px;">
+    <button id="photo-button" class="btn btn-dark">
+    Take Photo
+    </button>
+    <select id="photo-filter" class="select">
+        <option value="none">Normal</option>
+        <option value="./images/posableimgs/minions.png">Minions</option>
+        <option value="./images/posableimgs/xmas.png">Xmas</option>
+    </select>
+    <button id="clear-button" class="btn btn-light">Clear</button>
+    <canvas id="canvas"></canvas>
+</div>
+</div>
+<div class="column right" style="padding-left:50px;">
+    <div class="bottom-container">
+        <div id="photos"></div>
     </div>
 </div>
 
@@ -28,7 +24,7 @@
 <script>
     //Global Variable
     let width = 400;
-    let height = 300;
+    let height = 400;
     let filter = 'none';
     let streaming = false;
 
@@ -39,6 +35,7 @@
     const photoButton = document.getElementById('photo-button');
     const clearButton = document.getElementById('clear-button');
     const photoFilter = document.getElementById('photo-filter');
+    var overlay = document.getElementById('overlay');
 
     //Get media stream
     navigator.mediaDevices.getUserMedia({
@@ -72,7 +69,10 @@
 
     photoFilter.addEventListener('change', (e) => {
         filter = e.target.value;
-        video.style.filter = filter;
+        overlay.src = filter;
+        if(filter != 'none')
+            photoButton.setAttribute('disabled');
+
         e.preventDefault();
     }, false);
 

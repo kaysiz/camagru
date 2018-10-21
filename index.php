@@ -1,6 +1,4 @@
-<?php ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);include "./includes/header.inc.php"; ?>
+<?php include "./includes/header.inc.php"; ?>
 
     <!-- Gallery Section -->
     <section id="gallery">
@@ -23,6 +21,10 @@ error_reporting(E_ALL);include "./includes/header.inc.php"; ?>
             <p class="alert red"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>You need to log in to access the dashboard</p>
             <?php elseif ($_GET['notoken']): ?>
             <p class="alert red"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>The activation token does not exists!!</p>
+            <?php elseif ($_GET['reset'] == 'false'): ?>
+            <p class="alert red"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Password Reset failed</p>
+            <?php elseif ($_GET['pwdreset']): ?>
+            <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Password Reset email sent!</p>
             <?php elseif ($_GET['accountdelete']): ?>
             <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account Deleted successfully!! Pheeeeeeew!!! finally you are gone</p>
             <?php endif; ?>
@@ -111,12 +113,12 @@ error_reporting(E_ALL);include "./includes/header.inc.php"; ?>
             </div>
             <div class="container">
                 <button type="button" onclick="document.getElementById('login').style.display='none'" class="cancelbtn">Cancel</button>
-                <span class="psw">Forgot <a href="#">password?</a></span>
+                <span class="psw">Forgot <a href="#pwdreset" onclick="document.getElementById('pwdreset').style.display='block';document.getElementById('login').style.display='none'">password?</a></span>
             </div>
         </form>
     </div>
 
-    <!-- Login-->
+    <!-- Signup-->
     <div id="signup" class="modal container">
     <!-- Modal Content -->
         <form class="modal-content animate" action="./includes/funcs.inc.php" method="post">
@@ -141,6 +143,21 @@ error_reporting(E_ALL);include "./includes/header.inc.php"; ?>
                     <p id="number" class="invalid">A <b>number</b></p>
                     <p id="length" class="invalid">Minimum <b>8 characters</b></p>
                 </div>
+            </div>
+        </form>
+    </div> 
+
+    <!-- pwdreset-->
+    <div id="pwdreset" class="modal container">
+    <!-- Modal Content -->
+        <form class="modal-content animate" action="./includes/funcs.inc.php" method="post">
+            <span onclick="document.getElementById('pwdreset').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+            <div class="container">
+                <p><h3>Password reset</h3></p>
+                <input type="email" placeholder="Enter Email" name="email" required>
+                <input type="hidden" name="pwdreset" value="pwdreset">
+                <button type="submit">Reset password</button>
             </div>
         </form>
     </div> 

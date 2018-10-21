@@ -1,7 +1,6 @@
 <?php
     session_start();
     include "../config/database.php";
-    
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (isset($_GET['logout']))
             logout();
@@ -14,6 +13,10 @@
                     }
                 }
             }
+        }elseif (isset($_GET['reset'])) {
+            $email = trim($_GET['email']);
+            $token = trim($_GET['token']);
+            pwdreset($email, $token, $conn);
         }
     }
 
@@ -53,7 +56,6 @@
                 if (password_verify($password, $hash)) {
                     $_SESSION['username'] = $row['username'];
                     $_SESSION['email'] = $row['email'];
-                    $_SESSION['role'] = $row['role'];
                     $_SESSION['loggedin'] = true;
                     session_write_close();
                     if ($row['role'] == 'admin') {
@@ -77,6 +79,10 @@
             signup($user, $conn);
         }elseif (isset($_POST['img'])) {
             file_put_contents('img.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $_POST['key'])));
+        }elseif (isset($_POST['pwdreset'])) {
+            $email = trim($_POST['email']);
+            $token = md5(md5(time().$email.rand(0,9999)));
+            passreset($email, $token, $conn);
         }
     }
 
@@ -112,7 +118,8 @@
                 $signup->bindParam(':username', $user[0]);
                 $signup->bindParam(':email', $user[1]);
                 $signup->bindParam(':pwd', $user[2]);
-                $signup->execute(':token', $token);
+                $signup->bindParam(':token', $token);
+                $signup->execute();
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
             }
@@ -123,7 +130,6 @@
             die();
         }
     }
-
 
     // Activate account
     function activate($token, $conn) {
@@ -143,8 +149,7 @@
                 header('Location: ../index.php?active=true');
             } else{
                 try {
-                    $activate = $conn->prepare('UPDATE users SET isActive = :isActive WHERE email = :email');
-                    $activate->bindParam(':isActive', 1);
+                    $activate = $conn->prepare('UPDATE users SET isActive = 1 WHERE email = :email');
                     $activate->bindParam(':email', $statuscheck['email']);
                     $activate->execute();
                 } catch (Exception $e) {
@@ -154,13 +159,65 @@
                 if ($activate) {
                     $_SESSION['username'] = $statuscheck['username'];
                     $_SESSION['email'] = $statuscheck['email'];
-                    $_SESSION['role'] = $statuscheck['role'];
                     $_SESSION['loggedin'] = true;
                     session_write_close();
                     header('Location: ../index.php?activated=true');
                 }
                 die();
             } 
+        }else{
+            header('Location: ../index.php?notoken=true');
+        }
+    }
+
+    function passreset($email, $token, $conn){
+        //Insert reset token
+        try {
+            $reset = $conn->prepare('INSERT INTO pwdreset(email, token) VALUES(:email, :token)');
+            $reset->bindParam(':email', $email);
+            $reset->bindParam(':token', $token);
+            $reset->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+        if ($reset) {
+            pwdmail($email, $token, $conn);
+            header('Location: ../index.php?pwdreset=true');
+        }
+    }
+
+    function pwdreset($email, $token, $conn) {
+        //check if token exists
+        try {
+            $check = $conn->prepare('SELECT * FROM pwdreset WHERE token = :token');
+            $check->bindParam(':token', $token);
+            $check->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+        // check if user EXISTS
+        $num = $check->rowCount();
+        $statuscheck = $check -> fetch(PDO::FETCH_ASSOC);
+        if ($num > 0) {
+            try {
+                $reset = $conn->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
+                $reset->bindParam(':email', $statuscheck['email']);
+                $reset->execute();
+            } catch (Exception $e) {
+                echo 'Error: ' . $e->getMessage();
+            }
+            $checkuser = $reset -> fetch(PDO::FETCH_ASSOC);
+            if ($reset->rowCount() > 0) {
+                if ($checkuser['isActive'] == 1) {
+                    $_SESSION['username'] = $checkuser['username'];
+                    $_SESSION['email'] = $checkuser['email'];
+                    $_SESSION['loggedin'] = true;
+                    session_write_close();
+                    header('Location: ../dashboard.php?profile=true&reset=true');
+                }else {
+                    header("Location: ../index.php?reset=false");
+                }
+            }
         }else{
             header('Location: ../index.php?notoken=true');
         }
@@ -288,7 +345,38 @@
         $headers[] = 'Content-type: text/html; charset=iso-8859-1';
 
         // Additional headers
-        $headers[] = 'From: Camagru <jaggernaut@camagru.africa>';
+        $headers[] = 'From: Camagru <no-reply@camagru.africa>';
+        // Mail it
+        if (mail($to, $subject, $message, implode("\r\n", $headers)))
+            return true;
+        else
+            return false;
+    }
+
+    //pwdreset email
+    function pwdmail($email, $token) {
+        $to = $email;
+        
+        // Subject
+        $subject = 'Reset Camagru account password';
+
+        // Message
+        $message = '
+        <html>
+        <head>
+        <title>Reset your Camagru account password</title>
+        </head>
+        <body>
+        <p>To reset your Camagru account password click <a href="http://localhost:8080/camagru/includes/func.inc.php?reset=true&email='.$email.'&token='. $token.'">here.</a></p>
+        </body>
+        </html>
+        ';
+        // To send HTML mail, the Content-type header must be set
+        $headers[] = 'MIME-Version: 1.0';
+        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+
+        // Additional headers
+        $headers[] = 'From: Camagru <no-reply@camagru.africa>';
         // Mail it
         if (mail($to, $subject, $message, implode("\r\n", $headers)))
             return true;
