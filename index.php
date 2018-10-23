@@ -1,4 +1,6 @@
-<?php include "./includes/header.inc.php"; ?>
+<?php 
+    include "./includes/header.inc.php";
+?>
 
     <!-- Gallery Section -->
     <section id="gallery">
@@ -28,93 +30,18 @@
             <?php elseif ($_GET['accountdelete']): ?>
             <p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>Account Deleted successfully!! Pheeeeeeew!!! finally you are gone</p>
             <?php endif; ?>
-            <h1>Gallery</h1>
+            <h1>Welcome to Camagru</h1>
         </div>
         <div class="container gallery-container">
+            <?php foreach($images as $image): ?>
             <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
+                <a href=""><img src="./images/public/<?= $image['imgName'];?>" alt=""></a>
                 <div class="gallery-desc">
                     <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
+                    <span><a href="<?=($_SESSION['loggedin'] ? 'dashboard.php?comment=true&imgkey='.$image['imgId'] : '#');?>"><i class="far fa-comments fa-3x"></i></a></span>
                 </div>
             </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><i class="fas fa-heart fa-3x" onclick="localstr();"></i></span><span class="notification badge">3</span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><i class="fas fa-heart fa-3x" onclick="localstr();"></i></span><span class="notification badge">3</span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <a href=""><img src="./images/medium_ksiziva.jpg" alt=""></a>
-                <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href=""><i class="far fa-comments fa-3x"></i></a></span>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
     </section>
     <!-- Modal forms -->
@@ -183,4 +110,66 @@
         </form>
     </div> 
     <!-- End Modal forms -->
+    <script>
+        /*
+        * password validation
+        */
+        var myInput = document.getElementById("psw");
+        var letter = document.getElementById("letter");
+        var capital = document.getElementById("capital");
+        var number = document.getElementById("number");
+        var length = document.getElementById("length");
+
+        // When the user clicks on the password field, show the message box
+        myInput.onfocus = function() {
+            document.getElementById("message").style.display = "block";
+        }
+
+        // When the user clicks outside of the password field, hide the message box
+        myInput.onblur = function() {
+            document.getElementById("message").style.display = "none";
+        }
+
+        // When the user starts to type something inside the password field
+        myInput.onkeyup = function() {
+            // Validate lowercase letters
+            var lowerCaseLetters = /[a-z]/g;
+            if (myInput.value.match(lowerCaseLetters)) {
+                letter.classList.remove("invalid");
+                letter.classList.add("valid");
+            } else {
+                letter.classList.remove("valid");
+                letter.classList.add("invalid");
+            }
+
+            // Validate capital letters
+            var upperCaseLetters = /[A-Z]/g;
+            if (myInput.value.match(upperCaseLetters)) {
+                capital.classList.remove("invalid");
+                capital.classList.add("valid");
+            } else {
+                capital.classList.remove("valid");
+                capital.classList.add("invalid");
+            }
+
+            // Validate numbers
+            var numbers = /[0-9]/g;
+            if (myInput.value.match(numbers)) {
+                number.classList.remove("invalid");
+                number.classList.add("valid");
+            } else {
+                number.classList.remove("valid");
+                number.classList.add("invalid");
+            }
+
+            // Validate length
+            if (myInput.value.length >= 8) {
+                length.classList.remove("invalid");
+                length.classList.add("valid");
+            } else {
+                length.classList.remove("valid");
+                length.classList.add("invalid");
+            }
+        }
+    </script>
 <?php include "./includes/footer.inc.php";?>

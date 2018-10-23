@@ -1,6 +1,19 @@
 <?php
     session_start();
-    include "../config/database.php";
+    $DB_DSN = 'localhost';
+    $DB_USER = 'root';
+    $DB_PASSWORD = 'rooting';
+    $DB_NAME = 'camagru';
+    //connect to the newly created database
+    try {
+        $conn = new PDO("mysql:host=$DB_DSN;dbname=$DB_NAME", $DB_USER, $DB_PASSWORD);
+        // set the PDO error mode to exception
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+    catch(PDOException $e)
+    {
+        echo "Connection failed: " . $e->getMessage();
+    }
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (isset($_GET['logout']))
             logout();
@@ -17,6 +30,8 @@
             $email = trim($_GET['email']);
             $token = trim($_GET['token']);
             pwdreset($email, $token, $conn);
+        }elseif(isset($_GET['comments'])) {
+            getcomments($_GET['imgkey'],$conn);
         }
     }
 
@@ -78,7 +93,7 @@
             $user = array($username, $email, $password);
             signup($user, $conn);
         }elseif (isset($_POST['img'])) {
-            file_put_contents('img.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $_POST['key'])));
+            saveimg(trim($_POST['key']), trim($_POST['filter']), $conn);
         }elseif (isset($_POST['pwdreset'])) {
             $email = trim($_POST['email']);
             $token = md5(md5(time().$email.rand(0,9999)));
@@ -238,6 +253,7 @@
         $users =$access->fetchAll(PDO:: FETCH_ASSOC);
         return $users;
     }
+
     function deleteuser($email, $conn) {
         try{
             $access = $conn->prepare('DELETE FROM users WHERE email = :email');
@@ -307,7 +323,20 @@
         return $images;
     }
 
-    function getimages($conn) {
+    function getpublicimages($conn) {
+        try{
+            $access = $conn->prepare('SELECT * FROM images');
+            $access->execute();
+        }
+        catch(Exception $e){
+            echo 'Error: '.$e->getMessage();
+        }
+        $images = $access->fetchAll(PDO:: FETCH_ASSOC);
+
+        return $images;
+    }
+
+    function getprivateimages($conn) {
         try{
             $access = $conn->prepare('SELECT * FROM images');
             $access->execute();
@@ -367,7 +396,7 @@
         <title>Reset your Camagru account password</title>
         </head>
         <body>
-        <p>To reset your Camagru account password click <a href="http://localhost:8080/camagru/includes/func.inc.php?reset=true&email='.$email.'&token='. $token.'">here.</a></p>
+        <p>To reset your Camagru account password click <a href="http://localhost:8080/camagru/includes/funcs.inc.php?reset=true&email='.$email.'&token='. $token.'">here.</a></p>
         </body>
         </html>
         ';
@@ -390,6 +419,45 @@
             header('Location: ../index.php');
     }
 
-    function saveimg() {
-        return "Hey wassup";
+    function saveimg($img, $overlay,$conn) {
+        header("content-type: image/jpg");
+        $imgkey = substr(sha1(mt_rand()),17,6);
+        $username = $_SESSION['username'];
+        $imagename = $username.$imgkey.'.png';
+
+        if (strpos($img, 'data:image') !== false) {
+            file_put_contents('../images/raw/temp.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $img)));
+        }
+        $second = imagecreatefrompng('.'.$overlay);                                                     
+        $first = imagecreatefrompng('../images/raw/temp.png');
+        
+        imagecopy($first,$second,0,0,0,0,500,500);
+        
+        imagejpeg($first, '../images/public/'.$imagename, 100);
+        
+    
+        imagedestroy($first);
+        imagedestroy($second);
+        try {
+            $imgupload = $conn->prepare("INSERT INTO images(imgName, imgId, userId)VALUES (:imgName, :imgId, :userId)");
+            $imgupload->bindParam(':imgName', $imagename);
+            $imgupload->bindParam(':imgId', $imgkey);
+            $imgupload->bindParam(':userId', $_SESSION['username']);
+            $imgupload->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+    }
+
+    function getcomments($imgkey,$conn){
+        try{
+            $comments = $conn->prepare('SELECT * FROM comments WHERE imgId = :imgId');
+            $comments->bindParam(':imgId', $imgId);
+            $comments->execute();
+        }
+        catch(Exception $e){
+            echo 'Error: '.$e->getMessage();
+        }
+        $data = $comments->fetchAll(PDO:: FETCH_ASSOC);
+        echo json_encode($data);
     }

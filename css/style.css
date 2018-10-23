@@ -7,6 +7,10 @@ body {
     background-color: #f4f4f4;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 
 /* Global */
 
@@ -146,7 +150,7 @@ button {
     margin: 8px 0;
     border: none;
     cursor: pointer;
-    width: 100%;
+    width: 300px;
 }
 
 button:hover {
@@ -327,7 +331,7 @@ div.content {
 
 .btn {
     display: block;
-    width: 100%;
+    width: 300px;
     padding: 10px;
     margin-bottom: 5px;
 }
@@ -349,7 +353,7 @@ div.content {
     background: #333;
     color: #fff;
     padding: 3px;
-    width: 100%;
+    width: 300px;
     border: 1px #666 solid;
     margin-bottom: 10px;
 }
@@ -390,7 +394,8 @@ div.content {
 }
 
 #photos img {
-    width: 100%;
+    width: 400px;
+    height: 300px;
     border: 3px #fff solid;
 }
 
@@ -497,4 +502,94 @@ li.dropdown {
 
 .dropdown:hover .dropdown-content {
     display: block;
+}
+
+.different {
+    margin-left: 30%;
+    width: 20%;
+    margin-right: 30%;
+}
+
+.top-container {
+    width: 500px;
+    margin: 30px auto;
+}
+
+.bottom-container {
+    max-width: 960px;
+    margin-top: 65px;
+    padding: 10px;
+}
+
+
+/*  SECTIONS  */
+
+.section {
+    clear: both;
+    padding: 0px;
+    margin-left: 2%;
+}
+
+
+/*  COLUMN SETUP  */
+
+.col {
+    display: block;
+    float: left;
+    margin: 1% 0 1% 1.6%;
+}
+
+.col:first-child {
+    margin-left: 0;
+}
+
+
+/*  GROUPING  */
+
+.group:before,
+.group:after {
+    content: "";
+    display: table;
+}
+
+.group:after {
+    clear: both;
+}
+
+.group {
+    zoom: 1;
+    /* For IE 6/7 */
+}
+
+
+/*  GRID OF TWO  */
+
+.span_2_of_2 {
+    width: 70%;
+}
+
+.span_1_of_2 {
+    width: 30%;
+}
+
+
+/*  GO FULL WIDTH AT LESS THAN 480 PIXELS */
+
+@media only screen and (max-width: 480px) {
+    .col {
+        margin: 1% 0 1% 0%;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .span_2_of_2,
+    .span_1_of_2 {
+        width: 100%;
+    }
+}
+
+@media(min-width: 5120px) {
+    #overlay {
+        right: 100px;
+    }
 }

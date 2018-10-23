@@ -1,26 +1,28 @@
-<div class="column left">
-<div class="top-container" style="width:50%;position: relative;">
-    <video id="video">Stream not available...</video>
-    <img src="" alt="" id="overlay" style="position:absolute;bottom:194px; right:175px;width:400px;height:300px;">
-    <button id="photo-button" class="btn btn-dark">
-    Take Photo
-    </button>
-    <select id="photo-filter" class="select">
-        <option value="none">Normal</option>
-        <option value="./images/posableimgs/minions.png">Minions</option>
-        <option value="./images/posableimgs/xmas.png">Xmas</option>
-    </select>
-    <button id="clear-button" class="btn btn-light">Clear</button>
-    <canvas id="canvas"></canvas>
-</div>
-</div>
-<div class="column right" style="padding-left:50px;">
-    <div class="bottom-container">
-        <div id="photos"></div>
+<div class="section group">
+	<div class="col span_1_of_2">
+    <div class="top-container" style="width:50%;position: relative;">
+        <video id="video">Stream not available...</video>
+        <img src="" alt="" id="overlay" style="position:absolute;bottom:200px;width:400px;height:300px;">
+        <button id="photo-button" class="btn btn-dark">
+        Take Photo
+        </button>
+        <select id="photo-filter" class="select">
+            <option value="none">Normal</option>
+            <option value="./images/posableimgs/blackhearts.png">Black Hearts</option>
+            <option value="./images/posableimgs/devil.png">Devil Horns</option>
+            <option value="./images/posableimgs/fox.png">Fox</option>
+            <option value="./images/posableimgs/dog.png">Dog</option>
+        </select>
+        <button id="clear-button" class="btn btn-light">Clear</button>
+        <canvas id="canvas"></canvas>
     </div>
+	</div>
+	<div class="col span_1_of_2">
+        <div class="bottom-container">
+            <div id="photos"></div>
+        </div>
+	</div>
 </div>
-
-
 <script>
     //Global Variable
     let width = 400;
@@ -62,7 +64,9 @@
     }, false);
 
     photoButton.addEventListener('click', (e) => {
-        takePicture();
+        if (filter != 'none') {
+            takePicture();
+        }
 
         e.preventDefault();
     }, false);
@@ -70,9 +74,6 @@
     photoFilter.addEventListener('change', (e) => {
         filter = e.target.value;
         overlay.src = filter;
-        if(filter != 'none')
-            photoButton.setAttribute('disabled');
-
         e.preventDefault();
     }, false);
 
@@ -106,7 +107,7 @@
             var xhttp = new XMLHttpRequest();
             xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.send("img=true&key="+encodeURIComponent(d.getAttribute("data-imgkey")));
+            xhttp.send("img=true&filter="+filter+"&key="+encodeURIComponent(d.getAttribute("data-imgkey")));
         }else{
             var parent = document.getElementById('photos');
             parent.removeChild(d);

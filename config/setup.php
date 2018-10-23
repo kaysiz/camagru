@@ -1,6 +1,21 @@
 <?php 
 
     include "./database.php";
+    
+    $DB_DSN = 'localhost';
+    $DB_USER = 'root';
+    $DB_PASSWORD = 'rooting';
+    $DB_NAME = 'camagru';
+    //connect to the newly created database
+    try {
+        $conn = new PDO("mysql:host=$DB_DSN;dbname=$DB_NAME", $DB_USER, $DB_PASSWORD);
+        // set the PDO error mode to exception
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+    catch(PDOException $e)
+    {
+        echo "Connection failed: " . $e->getMessage();
+    }
 
     //create tables for users
     $user = "CREATE TABLE IF NOT EXISTS users ("
@@ -22,7 +37,7 @@
     //create tables for images
     $images = "CREATE TABLE IF NOT EXISTS images ("
     . "id int NOT NULL AUTO_INCREMENT,"
-    . "name varchar(100) NOT NULL,"
+    . "imgName varchar(100) NOT NULL,"
     . "imgId varchar(100) NOT NULL UNIQUE,"
     . "userId varchar(100) NOT NULL,"
     . "likes int NOT NULL DEFAULT 0,"
