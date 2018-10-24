@@ -103,7 +103,7 @@ hr{
 
     <div class="Instagram-card-content">
         <span class="Likes" style="text-align:right">Created by <?=e($image[0]['userId']);?> on 2018-20-12</span>
-      <p ><?=$image[0]['likes'];?> Likes | 34 Comments </p>
+      <p><?=$image[0]['likes'];?> Likes | 34 Comments </p>
       <div id="commData">
         
       </div>

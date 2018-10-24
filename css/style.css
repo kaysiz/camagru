@@ -104,9 +104,16 @@ header .current a {
     text-align: center;
 }
 
-.fa-heart,
 .fa-comments,
 .fa-trash {
+    color: #e8491d;
+}
+
+.fa-heart {
+    color: #4CAF50;
+}
+
+.liked {
     color: #e8491d;
 }
 

@@ -37,7 +37,7 @@
             <div class="gallery-item">
                 <a href=""><img src="./images/public/<?= $image['imgName'];?>" alt=""></a>
                 <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-2x"></i></a></span>
+                    <span><a href="#" data-img="<?=$image['imgId'];?>" onclick="likes(this)"><i class="fas fa-heart liked fa-2x"></i></a></span>
                     <span><a href="<?=($_SESSION['loggedin'] ? 'dashboard.php?comment=true&imgkey='.$image['imgId'] : '#');?>"><i class="far fa-comments fa-2x"></i></a></span>
                 </div>
             </div>
@@ -170,6 +170,20 @@
                 length.classList.remove("valid");
                 length.classList.add("invalid");
             }
+        }
+
+        /*
+        * Likes system
+        */
+        var img = document.getElementById("imgId");
+        var user = "<?=$_SESSION['username'];?>";
+        function likes(d) {
+            console.log(d.getAttribute("data-img"));
+            if (localStorage.getItem(d.getAttribute("data-img")) !== null) {
+                localStorage.removeItem(d.getAttribute("data-img"));
+            }
+            var data = [user];
+            localStorage.setItem(d.getAttribute("data-img"), JSON.stringify(data));
         }
     </script>
 <?php include "./includes/footer.inc.php";?>
