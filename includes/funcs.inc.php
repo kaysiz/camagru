@@ -31,16 +31,15 @@
             $token = trim($_GET['token']);
             pwdreset($email, $token, $conn);
         }elseif(isset($_GET['comments'])) {
-            getcomments($_GET['imgkey'],$conn);
+            getcomments(trim($_GET['imgkey']), $conn);
         }
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_POST['adduser'])) {
-            $name = $_POST['name'];
-            $email = $_POST['password'];
-            $role = $_POST['role'];
-            adduser($name, $email, $role, $conn);
+        if (isset($_POST['comment'])) {
+            $imgId = trim($_POST['imgkey']);
+            $comment = trim($_POST['data']);
+            comment($imgId, $comment, $conn);
         } elseif (isset($_POST['update'])) {
             $username = $_POST['username'];
             $email = $_POST['email'];
@@ -450,10 +449,25 @@
         }
     }
 
-    function getcomments($imgkey,$conn){
+
+    //comments
+
+    function comment($imgId, $comment, $conn) {
+        try {
+            $postcomment = $conn->prepare("INSERT INTO comments(imgId, userId, comment)VALUES (:imgId, :userId, :comment)");
+            $postcomment->bindParam(':imgId', $imgId);
+            $postcomment->bindParam(':userId', $_SESSION['username']);
+            $postcomment->bindParam(':comment', $comment);
+            $postcomment->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+    }
+
+    function getcomments($imgkey, $conn){
         try{
             $comments = $conn->prepare('SELECT * FROM comments WHERE imgId = :imgId');
-            $comments->bindParam(':imgId', $imgId);
+            $comments->bindParam(':imgId', $imgkey);
             $comments->execute();
         }
         catch(Exception $e){

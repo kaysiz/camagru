@@ -104,11 +104,9 @@ header .current a {
     text-align: center;
 }
 
-.fa-heart {
-    color: #e8491d;
-}
-
-.fa-comments {
+.fa-heart,
+.fa-comments,
+.fa-trash {
     color: #e8491d;
 }
 

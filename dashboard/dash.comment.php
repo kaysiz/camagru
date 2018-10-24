@@ -96,7 +96,7 @@ hr{
 }
 </style>
 <br>
-<div class="Instagram-card">
+<div class="Instagram-card" id="card">
     <div class="Instagram-card-image" style="text-align:center">
       <img src= "./images/public/<?= $image[0]['imgName'];?>" height=450px/>
     </div>
@@ -113,13 +113,13 @@ hr{
     <div class="Instagram-card-footer">
       <a class="footer-action-icons"href="#"><i class="fa fa-heart-o"></i></a>
       <input class="comments-input" id="comment" type="text" placeholder="type comment no more than 50 characters..." maxlength="50" onkeyup="stoppedTyping()"/>
-      <input type="button" value="Comment" id="btn" onclick="comment()" disabled/>
+      <input type="button" value="Comment" id="btn" onclick="sendcomment()" disabled/>
     </div>
 
   </div>
   <script>
     var xhttp = new XMLHttpRequest();
-
+    var comment = document.getElementById("comment");
     function stoppedTyping() {
       var comment = document.getElementById("comment");
       if(comment.value.length > 0) { 
@@ -132,37 +132,41 @@ hr{
     function getcomments() {
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                var comments = Object.keys(JSON.parse(this.response)).map((key) => ({ key, value: JSON.parse(this.response)[key] }));
+                var comments = JSON.parse(this.response);
+                
                 var comment = document.getElementById('commData');
+                comment.innerHTML = "";
                 if (comments.length > 0) {
                     comments.forEach(element => {
-                        comment.innerHTML += '<span class="user-comment">[ '+element.key+' ]&emsp;'+element.value+'</span><br>'; 
+                        comment.innerHTML += '<span class="user-comment">[ '+element.userId+' ]&emsp;'+element.comment+'</span><br>'; 
                     });
                 }else {
                     comment.innerHTML += "No comments yet, be the first to comment";
                 }
             }
         };
-        xhttp.open("GET", "http://localhost:8080/camagru/includes/funcs.inc.php?comments=true&imgkey=", true);
+        var img = "<?=$image[0]['imgName'];?>";
+        xhttp.open("GET", "http://localhost:8080/camagru/includes/funcs.inc.php?comments=true&imgkey="+img, true);
         xhttp.send();
     }
 
-    function comment() {
+    function sendcomment() {
         xhttp.onreadystatechange = function() {
+          var card = document.getElementById('card');
+          var message = '<p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display=\'none\';">&times;</span>Success!</p>';
             if (this.readyState == 4 && this.status == 200) {
-                var comments = Object.keys(JSON.parse(this.response)).map((key) => ({ key, value: JSON.parse(this.response)[key] }));
-                var comment = document.getElementById('commData');
-                if (comments.length > 0) {
-                    comments.forEach(element => {
-                        comment.innerHTML += '<span class="user-comment">[ '+element.key+' ]&emsp;'+element.value+'</span><br>'; 
-                    });
-                }else {
-                    comment.innerHTML += "No comments yet, be the first to comment";
-                }
+              document.getElementById("comment").value = "";
+              getcomments();
+              card.insertAdjacentHTML('afterbegin',message);
             }
         };
+        
+        var img = "<?=$image[0]['imgName'];?>";
         xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send("comment=true&filter="+filter+"&key="+encodeURIComponent(d.getAttribute("data-imgkey")));
+        xhttp.send("comment=true&imgkey="+img+"&data="+comment.value);
     }
+    document.addEventListener("DOMContentLoaded", function() {
+      getcomments();
+    });
   </script>

@@ -37,8 +37,8 @@
             <div class="gallery-item">
                 <a href=""><img src="./images/public/<?= $image['imgName'];?>" alt=""></a>
                 <div class="gallery-desc">
-                    <span><a href=""><i class="fas fa-heart fa-3x"></i></a></span>
-                    <span><a href="<?=($_SESSION['loggedin'] ? 'dashboard.php?comment=true&imgkey='.$image['imgId'] : '#');?>"><i class="far fa-comments fa-3x"></i></a></span>
+                    <span><a href=""><i class="fas fa-heart fa-2x"></i></a></span>
+                    <span><a href="<?=($_SESSION['loggedin'] ? 'dashboard.php?comment=true&imgkey='.$image['imgId'] : '#');?>"><i class="far fa-comments fa-2x"></i></a></span>
                 </div>
             </div>
             <?php endforeach; ?>
