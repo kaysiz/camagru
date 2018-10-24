@@ -47,8 +47,8 @@
             $password = $_POST['password'];
             $user = array($username, $email, $password);
             updateuser($user, $conn);
-        } elseif (isset($_POST['editPlan'])) {
-            
+        } elseif (isset($_POST['comment'])) {
+            $comment = trim($_POST['comment']);
         } elseif (isset($_POST['login'])) {
             $username = $_POST['username'];
             $password = $_POST['password'];
@@ -311,16 +311,17 @@
         return $users;
     }
 
-    function getimage($key, $conn) {
+    function getpublicimage($key, $conn) {
         try{
-            $access = $conn->prepare('SELECT * FROM images WHERE imgKey = '.$key.' LIMIT 1');
+            $access = $conn->prepare('SELECT * FROM images WHERE imgId = :imgId LIMIT 1');
+            $access->bindParam(':imgId', $key);
             $access->execute();
         }
         catch(Exception $e){
             echo 'Error: '.$e->getMessage();
         }
-        $images = $access->fetchAll(PDO:: FETCH_ASSOC);
-        return $images;
+        $image = $access->fetchAll(PDO:: FETCH_ASSOC);
+        return $image;
     }
 
     function getpublicimages($conn) {
@@ -460,4 +461,10 @@
         }
         $data = $comments->fetchAll(PDO:: FETCH_ASSOC);
         echo json_encode($data);
+    }
+
+    //security XSS
+    function e($string)
+    {
+        return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
     }
