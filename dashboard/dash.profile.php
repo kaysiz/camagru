@@ -12,8 +12,10 @@
             <input type="text" value="<?= $_SESSION['username'];?>" name="username" required>
             <input type="email" value="<?= $_SESSION['email'];?>" name="email" required>
             <input type="password" placeholder="<?php if ($_GET['reset']): ?>Enter new password<?php else: ?>Enter password<?php endif; ?>" name="password" required>
+            <input type="checkbox" name="notify" value="yes" checked="checked"> Do you want to receive notification emails?
             <input type="hidden" name="update" value="update">
             <button type="submit"><?php if ($_GET['reset']): ?>Reset your password<?php else: ?>Update profile<?php endif; ?></button>
         </div>
     </form>
+    <div class='push'></div>
 </div>

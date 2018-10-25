@@ -44,10 +44,14 @@
             $username = $_POST['username'];
             $email = $_POST['email'];
             $password = $_POST['password'];
-            $user = array($username, $email, $password);
+            $notify = ($_POST['notify'] == 'yes') ? 1 : 0;
+            $user = array($username, $email, $notify, $password);
+            // print_r($user);
+            // die();
             updateuser($user, $conn);
-        } elseif (isset($_POST['comment'])) {
-            $comment = trim($_POST['comment']);
+        } elseif (isset($_POST['delimg'])) {
+            $img = trim($_POST['key']);
+            deleteimg($img, $conn);
         } elseif (isset($_POST['login'])) {
             $username = $_POST['username'];
             $password = $_POST['password'];
@@ -97,6 +101,27 @@
             $email = trim($_POST['email']);
             $token = md5(md5(time().$email.rand(0,9999)));
             passreset($email, $token, $conn);
+        }elseif (isset($_POST['like'])) {
+            $imgId = trim($_POST['imgkey']);
+            like($imgId, $conn);
+        }elseif (isset($_POST['unlike'])) {
+            $imgId = trim($_POST['imgkey']);
+            unlike($imgId, $conn);
+        }elseif (isset($_POST['email'])) {
+            $img = trim($_POST['imgkey']);
+            commentemail($img, $conn);
+            // echo $img;
+        }elseif (isset($_POST['manual'])) {
+            $errors= array();
+            $file_name = $_FILES['image']['name'];
+            $file_tmp = $_FILES['image']['tmp_name'];
+            $file_type = $_FILES['image']['type'];
+            
+            if(empty($errors)==true) {
+                if(move_uploaded_file($file_tmp,"../images/raw/".$file_name)) {
+                    saveimg($file_name, trim($_POST['imgoverlay']), $conn);
+                }
+            }
         }
     }
 
@@ -269,6 +294,28 @@
         }
     }
 
+    function deleteimg($img, $conn) {
+        //delete image
+        try{
+            $image = $conn->prepare('DELETE FROM images WHERE imgId = :imgId');
+            $image->bindParam(':imgId', $img);
+            $image->execute();
+        }
+        catch(Exception $e){
+            echo 'Error: '.$e->getMessage();
+        }
+
+        //delete comments for the image
+        try{
+            $comments = $conn->prepare('DELETE FROM comments WHERE imgId = :imgId');
+            $comments->bindParam(':imgId', $img);
+            $comments->execute();
+        }
+        catch(Exception $e){
+            echo 'Error: '.$e->getMessage();
+        }
+    }
+
     function updateuser($user, $conn){
         try {
             $check = $conn->prepare('SELECT * FROM users WHERE username = :username AND email != :email');
@@ -282,12 +329,15 @@
         if ($num > 0) {
             header('Location: ../dashboard.php?profile=true&usernameexists=true');
         }else{
-            $password = password_hash(trim($user[2]), PASSWORD_BCRYPT, array('cost' => 5));
+            $pwd = password_hash(trim($user[3]), PASSWORD_BCRYPT, array('cost' => 5));
             try {
-                $update = $conn->prepare('UPDATE users SET username = :username, email = :email, password = :password');
+                $update = $conn->prepare('UPDATE users SET username = :username, email = :email, password = :pwd, notify = :notify WHERE email = :email');
                 $update->bindParam(':username', $user[0]);
                 $update->bindParam(':email', $user[1]);
-                $update->bindParam(':password', $password);
+                $update->bindParam(':pwd', $pwd);
+                $update->bindParam(':notify', $user[2]);
+                // var_dump($update);
+                // die();
                 $update->execute();
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
@@ -338,7 +388,8 @@
 
     function getprivateimages($conn) {
         try{
-            $access = $conn->prepare('SELECT * FROM images');
+            $access = $conn->prepare('SELECT * FROM images WHERE userId = :userId');
+            $access->bindParam(':userId', $_SESSION['username']);
             $access->execute();
         }
         catch(Exception $e){
@@ -380,6 +431,48 @@
             return true;
         else
             return false;
+    }
+
+    function commentemail($img, $conn) {
+        try{
+            $access = $conn->prepare('SELECT users.email, users.notify FROM users INNER JOIN images ON users.username=images.userId where images.imgId = :imgid');
+            $access->bindParam(':imgid', $img);
+            $access->execute();
+        }
+        catch(Exception $e){
+            echo 'Error: '.$e->getMessage();
+        }
+        $user = $access->fetch(PDO:: FETCH_ASSOC);
+        
+        if ($user['notify'] == 1) {
+            $to = $user['email'];;
+        
+            // Subject
+            $subject = 'New comment from Camagru';
+
+            // Message
+            $message = '
+            <html>
+            <head>
+            <title>New Comment from Camagru</title>
+            </head>
+            <body>
+            <p>'.$_SESSION['username'].' commented on your picture click <a href="http://localhost:8080/camagru/dashboard.php?comment=true&imgkey='. $img .'">here to view comment.</a></p>
+            </body>
+            </html>
+            ';
+            // To send HTML mail, the Content-type header must be set
+            $headers[] = 'MIME-Version: 1.0';
+            $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+
+            // Additional headers
+            $headers[] = 'From: Camagru <no-reply@camagru.africa>';
+            // Mail it
+            if (mail($to, $subject, $message, implode("\r\n", $headers)))
+                return true;
+            else
+                return false;
+        }
     }
 
     //pwdreset email
@@ -426,10 +519,11 @@
         $imagename = $username.$imgkey.'.png';
 
         if (strpos($img, 'data:image') !== false) {
-            file_put_contents('../images/raw/temp.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $img)));
+            file_put_contents('../images/raw/temp.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $img)));   
         }
-        $second = imagecreatefrompng('.'.$overlay);                                                     
-        $first = imagecreatefrompng('../images/raw/temp.png');
+        $second = imagecreatefrompng('.'.$overlay);
+        $first = (strpos($img, 'data:image') !== false) ? imagecreatefrompng('../images/raw/temp.png') : imagecreatefrompng('../images/raw/'.$img);                                                  
+        
         
         imagecopy($first,$second,0,0,0,0,500,500);
         
@@ -475,6 +569,28 @@
         }
         $data = $comments->fetchAll(PDO:: FETCH_ASSOC);
         echo json_encode($data);
+    }
+
+
+    // Likes System
+    function like($imgId, $conn) {
+        try {
+            $like = $conn->prepare('UPDATE images SET likes = likes + 1 WHERE imgId = :imgId');
+            $like->bindParam(':imgId', $imgId);
+            $like->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+    }
+
+    function unlike($imgId, $conn) {
+        try {
+            $unlike = $conn->prepare('UPDATE images SET likes = likes - 1 WHERE imgId = :imgId AND like != 0');
+            $unlike->bindParam(':imgId', $imgId);
+            $unlike->execute();
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
     }
 
     //security XSS

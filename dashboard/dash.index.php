@@ -112,6 +112,5 @@
             var parent = document.getElementById('photos');
             parent.removeChild(d);
         }
-        console.log(d.getAttribute("data-imgkey"));
     }
 </script>

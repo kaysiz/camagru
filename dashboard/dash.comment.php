@@ -102,8 +102,8 @@ hr{
     </div>
 
     <div class="Instagram-card-content">
-        <span class="Likes" style="text-align:right">Created by <?=e($image[0]['userId']);?> on 2018-20-12</span>
-      <p><?=$image[0]['likes'];?> Likes | 34 Comments </p>
+        <span class="Likes" style="text-align:right">Created by <?=e($image[0]['userId']);?></span>
+      <p><?=$image[0]['likes'];?> Like(s)</p>
       <div id="commData">
         
       </div>
@@ -128,6 +128,16 @@ hr{
             document.getElementById('btn').disabled = true;
         }
     }
+    
+    function escapeHTML (string) {
+        return string
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/\'/g, '&#39;')
+          .replace(/\//g, '&#x2F;')
+    }
 
     function getcomments() {
         xhttp.onreadystatechange = function() {
@@ -138,7 +148,7 @@ hr{
                 comment.innerHTML = "";
                 if (comments.length > 0) {
                     comments.forEach(element => {
-                        comment.innerHTML += '<span class="user-comment">[ '+element.userId+' ]&emsp;'+element.comment+'</span><br>'; 
+                        comment.innerHTML += '<span class="user-comment">[ '+element.userId+' ]&emsp;'+escapeHTML(element.comment)+'</span><br>'; 
                     });
                 }else {
                     comment.innerHTML += "No comments yet, be the first to comment";
@@ -153,18 +163,25 @@ hr{
     function sendcomment() {
         xhttp.onreadystatechange = function() {
           var card = document.getElementById('card');
+          var img = "<?=$image[0]['imgId'];?>";
           var message = '<p class="alert success"><span class="closebtn" onclick="this.parentElement.style.display=\'none\';">&times;</span>Success!</p>';
             if (this.readyState == 4 && this.status == 200) {
               document.getElementById("comment").value = "";
               getcomments();
               card.insertAdjacentHTML('afterbegin',message);
+              sendemail(img);
             }
         };
-        
         var img = "<?=$image[0]['imgName'];?>";
         xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.send("comment=true&imgkey="+img+"&data="+comment.value);
+    }
+
+    function sendemail(img) {
+      xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("email=true&imgkey="+img);
     }
     document.addEventListener("DOMContentLoaded", function() {
       getcomments();

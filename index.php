@@ -1,5 +1,19 @@
 <?php 
     include "./includes/header.inc.php";
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $perpage = 5;
+    $start = ($page > 1) ? ($page * $perpage) - $perpage : 0;
+    //query
+    $query = $conn->prepare("SELECT  SQL_CALC_FOUND_ROWS * FROM images limit {$start},{$perpage} ");
+    $query->execute();
+
+    $images = $query->fetchAll(PDO::FETCH_ASSOC);
+
+    //pages
+    $total = $conn->prepare("SELECT FOUND_ROWS() as total");
+    $total->execute();
+    $total = $total->fetch()['total'];
+    $pages =  ceil($total / $perpage);
 ?>
 
     <!-- Gallery Section -->
@@ -37,11 +51,17 @@
             <div class="gallery-item">
                 <a href=""><img src="./images/public/<?= $image['imgName'];?>" alt=""></a>
                 <div class="gallery-desc">
-                    <span><a href="#" data-img="<?=$image['imgId'];?>" onclick="likes(this)"><i class="fas fa-heart liked fa-2x"></i></a></span>
+                    <span><a href="#" data-img="<?=$image['imgId'];?>" <?=($_SESSION['loggedin'] ? 'onclick="likes(this)"' : '');?>><i id="heart" class="fas <?= ($image['likes'] > 0) ? 'liked ': '';?>fa-heart fa-2x"></i></a></span>
                     <span><a href="<?=($_SESSION['loggedin'] ? 'dashboard.php?comment=true&imgkey='.$image['imgId'] : '#');?>"><i class="far fa-comments fa-2x"></i></a></span>
                 </div>
             </div>
             <?php endforeach; ?>
+        </div>
+        <div class="container">
+        <?php if ($page <= $pages): ?>
+            <a type="button" href="?page=<?php echo $page-1;?>">previous</a>
+            <a type="button" href="?page=<?php echo $page+1;?>">next</a>
+        <?php endif; ?>
         </div>
     </section>
     <!-- Modal forms -->
@@ -175,15 +195,41 @@
         /*
         * Likes system
         */
-        var img = document.getElementById("imgId");
-        var user = "<?=$_SESSION['username'];?>";
+        var xhttp = new XMLHttpRequest();
+        var img = document.getElementById("heart");
         function likes(d) {
-            console.log(d.getAttribute("data-img"));
+            var user = "<?=$_SESSION['username'];?>";
             if (localStorage.getItem(d.getAttribute("data-img")) !== null) {
-                localStorage.removeItem(d.getAttribute("data-img"));
+                var data = JSON.parse(localStorage.getItem(d.getAttribute("data-img")));
+                if(data.includes(user))
+                {
+                    data.splice( list.indexOf(user), 1 );
+                    localStorage.setItem(d.getAttribute("data-img"), JSON.stringify(data));
+                    img.classList.remove("liked");
+                    unlike(d.getAttribute("data-img"));
+                }else {
+                    data.push(user);
+                    localStorage.setItem(d.getAttribute("data-img"), JSON.stringify(data));
+                    img.classList.add("liked");
+                    like(d.getAttribute("data-img"));
+                }
+            }else {
+                var user = [user]
+                localStorage.setItem(d.getAttribute("data-img"), JSON.stringify(user));
+                like(d.getAttribute("data-img"));
             }
-            var data = [user];
-            localStorage.setItem(d.getAttribute("data-img"), JSON.stringify(data));
+        }
+
+        function like(imgid) {
+            xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("like=true&imgkey="+imgid);
+        }
+
+        function unlike(imgid) {
+            xhttp.open("POST", "http://localhost:8080/camagru/includes/funcs.inc.php", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("unlike=true&imgkey="+imgid);
         }
     </script>
 <?php include "./includes/footer.inc.php";?>

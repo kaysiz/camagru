@@ -22,9 +22,10 @@
     . "id int NOT NULL AUTO_INCREMENT,"
     . "username varchar(100) NOT NULL UNIQUE,"
     . "email varchar(100) NOT NULL UNIQUE,"
-    . "password varchar(1000) NOT NULL,"
-    . "token varchar(1000) NOT NULL,"
-    . "isActive varchar(1000) NOT NULL DEFAULT 0,"
+    . "password varchar(100) NOT NULL,"
+    . "token varchar(100) NOT NULL,"
+    . "notify varchar(100) NOT NULL DEFAULT 1,"
+    . "isActive varchar(100) NOT NULL DEFAULT 0,"
     . "dateCreated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
     . "PRIMARY KEY (id));";
     try {

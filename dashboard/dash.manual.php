@@ -1,30 +1,38 @@
+<?php
+	var_dump($_POST);
+?>
 <div class="different">
 	<div style="height:77vh;">
 		<h3>Choose Image</h3>
-		<p>
-			<input id="files-upload" type="file" multiple>
-		</p>
-		<ul id="file-list">
-			<li class="no-items">(no files uploaded yet)</li>
-			<img src="" alt="" id="overlay" style="position:absolute;width:300px;height:200px;">
-		</ul>
-		<form action="">
-		<p>
-			<select id="photo-filter" class="select">
-				<option value="none">Normal</option>
-				<option value="./images/posableimgs/minions.png">Minions</option>
-				<option value="./images/posableimgs/xmas.png">Xmas</option>
-			</select>
-		</p>
-		<p>
-			<button>Save</button>
-		</p>
+		<form action="./includes/funcs.inc.php" method="POST" enctype="multipart/form-data">
+			<p>
+				<input id="files-upload" type="file" name="image" accept="image/png">
+				<input type="hidden" id="poverlay" name="manual">
+			</p>
+			<ul id="file-list">
+				<li class="no-items">(no files uploaded yet)</li>
+				<img src="" alt="" id="overlay" style="position:absolute;width:300px;height:200px;">
+			</ul>
+			<p>
+				<select id="photo-filter" class="select" name="imgoverlay">
+					<option value="none">Normal</option>
+					<option value="./images/posableimgs/blackhearts.png">Black Hearts</option>
+					<option value="./images/posableimgs/devil.png">Devil Horns</option>
+					<option value="./images/posableimgs/fox.png">Fox</option>
+					<option value="./images/posableimgs/dog.png">Dog</option>
+				</select>
+			</p>
+			<p>
+				<button type="submit">Save</button>
+			</p>
 		</form>
 	</div>
 </div>
+<div class='push'></div>
 <script>
     var overlay = document.getElementById("overlay");
-    const photoFilter = document.getElementById('photo-filter');
+	const photoFilter = document.getElementById('photo-filter');
+	var poverlay = document.getElementById("poverlay");
     photoFilter.addEventListener('change', (e) => {
         filter = e.target.value;
         overlay.src = filter;
@@ -39,19 +47,7 @@
 		var li = document.createElement("li"),
 			div = document.createElement("div"),
 			img,
-			progressBarContainer = document.createElement("div"),
-			progressBar = document.createElement("div"),
-			reader,
-			xhr,
-			fileInfo;
-			
-		li.appendChild(div);
-		
-		progressBarContainer.className = "progress-bar-container";
-		progressBar.className = "progress-bar";
-		progressBarContainer.appendChild(progressBar);
-		li.appendChild(progressBarContainer);
-		
+			reader;
 		/*
 			If the file is an image and the web browser supports FileReader,
 			present a preview in the file list

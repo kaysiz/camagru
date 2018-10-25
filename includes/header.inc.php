@@ -1,6 +1,8 @@
-<?php 
+<?php
+    ini_set('session.gc_maxlifetime', 3600);
     require_once "funcs.inc.php";
-    $images = getpublicimages($conn);
+    // $images = getpublicimages($conn);
+    $myimages = getprivateimages($conn);
 ?>
 <!DOCTYPE html>
 <html lang="en">
