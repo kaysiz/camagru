@@ -111,7 +111,7 @@
             $img = trim($_POST['imgkey']);
             commentemail($img, $conn);
             // echo $img;
-        }elseif (isset($_POST['manual'])) {
+        }elseif (isset($_POST['manual'])) {  
             $errors= array();
             $file_name = $_FILES['image']['name'];
             $file_tmp = $_FILES['image']['tmp_name'];
@@ -519,17 +519,15 @@
         $imagename = $username.$imgkey.'.png';
 
         if (strpos($img, 'data:image') !== false) {
-            file_put_contents('../images/raw/temp.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $img)));   
+            file_put_contents('../images/raw/temp.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $img)));
         }
         $second = imagecreatefrompng('.'.$overlay);
-        $first = (strpos($img, 'data:image') !== false) ? imagecreatefrompng('../images/raw/temp.png') : imagecreatefrompng('../images/raw/'.$img);                                                  
-        
+        $first = imagecreatefrompng('../images/raw/temp.png');                                                   
         
         imagecopy($first,$second,0,0,0,0,500,500);
         
         imagejpeg($first, '../images/public/'.$imagename, 100);
         
-    
         imagedestroy($first);
         imagedestroy($second);
         try {
