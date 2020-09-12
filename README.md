@@ -33,16 +33,35 @@ This web project is to create a small web application allowing one to make basic
 - Front-end technologies
     - HTML
     - CSS
+    - Javascript
     
 - Database management systems
     - mysql
-    - phpmyadmin
 
 - Break down of app folder structure
     - config
-        - has 3 files, setup.php ( to create tables when installing the application), database.php (to instantiate the PDO connection to the databse) and uninstall.php (to drop) all tables when uninstalling.
-    - Dashboard
-        * has all the files for user profile edit, upload of images
+        - database.php
+        - setup.php
+        - uninstall.php
+    - dashboard
+        - dash.comment.php
+        - dash.gallery.php
+        - dash.index.php
+        - dash.manual.php
+        - dash.profile.php
+    - includes
+        - activate.php
+        - foonter.inc.php
+        - header.inc.php
+    - css
+        - style.css 
+    - Javascript
+        - script.js
+    - camera.php
+    - dashboard.php
+    - email.php
+    - index.php
 ## Testing
 
 https://github.com/wethinkcode-students/corrections_42_curriculum/blob/master/camagru.markingsheet.pdf
+
